@@ -4,10 +4,39 @@ const ytdlp = require('yt-dlp-exec');
 const isDev = process.env.NODE_ENV === 'development';
 
 function createWindow() {
-  const preloadPath = isDev
-    ? path.join(__dirname, 'preload.js')
-    : path.join(__dirname, 'dist/preload.js');
+  const fs = require('fs');
 
+  function resolvePreload() {
+    // Dev mode: use repo preload.js
+    if (isDev) {
+      return path.join(__dirname, 'preload.js');
+    }
+
+    // 1. dist/preload.js (when running from project folder with built files)
+    const distPreload = path.join(__dirname, 'dist', 'preload.js');
+    if (fs.existsSync(distPreload)) return distPreload;
+
+    // 2. resources/app.asar.unpacked/preload.js (when packaged with asar unpack)
+    try {
+      const asarUnpacked = path.join(process.resourcesPath, 'app.asar.unpacked', 'preload.js');
+      if (fs.existsSync(asarUnpacked)) return asarUnpacked;
+    } catch (e) {
+      // ignore
+    }
+
+    // 3. resources/preload.js (if added as extraResources)
+    try {
+      const resourcesPreload = path.join(process.resourcesPath, 'preload.js');
+      if (fs.existsSync(resourcesPreload)) return resourcesPreload;
+    } catch (e) {
+      // ignore
+    }
+
+    // fallback
+    return distPreload;
+  }
+
+  const preloadPath = resolvePreload();
   console.log('Using preload script:', preloadPath);
   console.log('Preload file exists:', require('fs').existsSync(preloadPath));
 
