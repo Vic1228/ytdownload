@@ -23,15 +23,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build & Package
-        # Run packaging but disable auto-publish so GH_TOKEN is not required
-        run: npm run package -- --publish never
+      - name: Build (Vite)
+        run: npm run build
 
-      - name: Upload installer artifact
+      - name: Package portable (unpacked -> zip)
+        # Use electron-builder to produce an unpacked distribution (--dir) and avoid publishing
+        run: |
+          npx electron-builder --win --x64 --dir --publish never
+          powershell -Command "Compress-Archive -Path 'dist\\win-unpacked\\*' -DestinationPath 'dist\\ytdownload-portable-win-x64.zip' -Force"
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ytdownload-windows-installer
+          name: ytdownload-windows-artifacts
           path: |
+            dist/ytdownload-portable-win-x64.zip
             dist/*.exe
             dist/*.nsis*
-            dist/*.zip
