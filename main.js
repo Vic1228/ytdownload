@@ -51,6 +51,18 @@ function createWindow() {
     },
   });
 
+  // If packaged, ensure resources binaries (ffmpeg/yt-dlp) are discoverable
+  try {
+    const resourcesPath = process.resourcesPath;
+    const ffmpegPath = path.join(resourcesPath, 'ffmpeg');
+    const ytdlpPath = path.join(resourcesPath, 'yt-dlp');
+    // Prepend resources to PATH so child processes can find them
+    process.env.PATH = `${ffmpegPath};${ytdlpPath};` + process.env.PATH;
+    console.log('Updated PATH for packaged binaries:', ffmpegPath, ytdlpPath);
+  } catch (e) {
+    // ignore if resourcesPath not available in dev
+  }
+
   win.once('ready-to-show', () => {
     console.log('Window ready to show');
     win.show();

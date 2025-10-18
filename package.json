@@ -47,6 +47,11 @@
       "**/node_modules/yt-dlp-exec/**",
       "**/node_modules/**/bin/**"
     ],
+    "extraResources": [
+      { "from": "node_modules/ffmpeg-static/bin", "to": "ffmpeg" },
+      { "from": "node_modules/yt-dlp-exec/bin", "to": "yt-dlp" },
+      { "from": "preload.js", "to": "preload.js" }
+    ],
     "win": {
       "target": [
         {
