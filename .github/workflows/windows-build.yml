@@ -24,7 +24,8 @@ jobs:
         run: npm ci
 
       - name: Build & Package
-        run: npm run package
+        # Run packaging but disable auto-publish so GH_TOKEN is not required
+        run: npm run package -- --publish never
 
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
