@@ -1,0 +1,56 @@
+{
+  "name": "ytdownload",
+  "version": "1.0.0",
+  "description": "YouTube 音樂下載器 - Electron + Vue 3 app",
+  "main": "main.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=production electron .",
+    "dev": "cross-env NODE_ENV=development concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "build": "vite build && cpy preload.js dist/",
+    "package": "npm run build && electron-builder --win --x64",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ffmpeg-static": "^5.2.0",
+    "yt-dlp-exec": "^1.0.2"
+  },
+  "devDependencies": {
+    "electron": "^38.3.0",
+    "@types/node": "^18.19.130",
+    "@vitejs/plugin-vue": "^4.6.2",
+    "autoprefixer": "^10.4.21",
+    "concurrently": "^8.2.2",
+    "cpy-cli": "^6.0.0",
+    "cross-env": "^7.0.3",
+    "electron-builder": "^26.0.12",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.18",
+    "vite": "^4.5.14",
+    "vue": "^3.5.22",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.example.ytdownload",
+    "productName": "ytdownload",
+    "files": [
+      "dist/**",
+      "main.js",
+      "preload.js",
+      "package.json",
+      "node_modules/**"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    }
+  }
+}
