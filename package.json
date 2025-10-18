@@ -53,6 +53,7 @@
       { "from": "preload.js", "to": "preload.js" }
     ],
     "win": {
+      "sign": false,
       "target": [
         {
           "target": "nsis",
