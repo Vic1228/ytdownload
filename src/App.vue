@@ -182,8 +182,12 @@ const downloadNames = async () => {
   for (const name of names) {
     try {
       const url = await window.electronAPI.search(name.trim())
-      const result = await window.electronAPI.download(url, downloadPath.value)
-      status.value += `\n已下載: ${name}`
+      const res = await window.electronAPI.download(url, downloadPath.value)
+      if (res && res.success) {
+        status.value += `\n已下載: ${name}`
+      } else {
+        status.value += `\n${name} 錯誤: ${res?.error || '未知錯誤'}`
+      }
 
       completed++
       namesProgress.value = Math.round((completed / total) * 100)

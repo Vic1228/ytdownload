@@ -91,15 +91,18 @@ Menu.setApplicationMenu(null);
 
 ipcMain.handle('download', async (event, url, downloadPath) => {
   try {
+    console.log('Download requested:', { url, downloadPath });
     const outputPath = downloadPath ? `${downloadPath}/%(title)s.mp3` : '%(title)s.mp3';
     await ytdlp(url, {
       extractAudio: true,
       audioFormat: 'mp3',
       output: outputPath
     });
-    return '已下載';
+    console.log('Download finished successfully for:', url);
+    return { success: true, message: '已下載', outputPath };
   } catch (error) {
-    return error.message;
+    console.error('Download failed for:', url, error);
+    return { success: false, error: error.message };
   }
 });
 
