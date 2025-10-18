@@ -53,7 +53,7 @@
       { "from": "preload.js", "to": "preload.js" }
     ],
     "win": {
-      "sign": false,
+  "forceCodeSigning": false,
       "target": [
         {
           "target": "nsis",
