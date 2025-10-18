@@ -105,6 +105,61 @@ ipcMain.handle('download', async (event, url, downloadPath) => {
   try {
     console.log('Download requested:', { url, downloadPath });
     const outputPath = downloadPath ? `${downloadPath}/%(title)s.mp3` : '%(title)s.mp3';
+
+    // Try to locate a packaged yt-dlp binary in several possible locations
+    const possibleBinaries = [];
+    try {
+      // resources/yt-dlp (from extraResources mapping)
+      possibleBinaries.push(path.join(process.resourcesPath, 'yt-dlp', 'yt-dlp.exe'));
+      possibleBinaries.push(path.join(process.resourcesPath, 'yt-dlp', 'yt-dlp'));
+      // resources root (if copied as yt-dlp.exe)
+      possibleBinaries.push(path.join(process.resourcesPath, 'yt-dlp.exe'));
+      possibleBinaries.push(path.join(process.resourcesPath, 'yt-dlp'));
+      // app.asar.unpacked location
+      possibleBinaries.push(path.join(process.resourcesPath, 'app.asar.unpacked', 'node_modules', 'yt-dlp-exec', 'bin', 'yt-dlp.exe'));
+      possibleBinaries.push(path.join(process.resourcesPath, 'app.asar.unpacked', 'node_modules', 'yt-dlp-exec', 'bin', 'yt-dlp'));
+      // dev location
+      possibleBinaries.push(path.join(__dirname, 'node_modules', 'yt-dlp-exec', 'bin', 'yt-dlp.exe'));
+      possibleBinaries.push(path.join(__dirname, 'node_modules', 'yt-dlp-exec', 'bin', 'yt-dlp'));
+    } catch (e) {
+      // ignore
+    }
+
+    const fs = require('fs');
+    const { execFile } = require('child_process');
+
+    let foundBinary = null;
+    for (const p of possibleBinaries) {
+      if (!p) continue;
+      try {
+        if (fs.existsSync(p)) {
+          foundBinary = p;
+          break;
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    if (foundBinary) {
+      console.log('Found yt-dlp binary at:', foundBinary);
+      // Build args for extracting audio
+      const args = ['--extract-audio', '--audio-format', 'mp3', '--output', outputPath, url];
+      await new Promise((resolve, reject) => {
+        const child = execFile(foundBinary, args, { windowsHide: true }, (error, stdout, stderr) => {
+          if (error) {
+            console.error('yt-dlp execFile error:', error, stderr);
+            return reject(error);
+          }
+          console.log('yt-dlp stdout:', stdout);
+          resolve();
+        });
+      });
+      console.log('Download finished successfully for:', url, 'output:', outputPath);
+      return { success: true, message: '已下載', outputPath };
+    }
+
+    // Fallback to yt-dlp-exec wrapper (may work in dev)
     await ytdlp(url, {
       extractAudio: true,
       audioFormat: 'mp3',
