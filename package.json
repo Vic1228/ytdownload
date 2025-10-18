@@ -39,8 +39,13 @@
       "dist/**",
       "main.js",
       "preload.js",
-      "package.json",
-      "node_modules/**"
+      "package.json"
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "**/node_modules/ffmpeg-static/**",
+      "**/node_modules/yt-dlp-exec/**",
+      "**/node_modules/**/bin/**"
     ],
     "win": {
       "target": [
